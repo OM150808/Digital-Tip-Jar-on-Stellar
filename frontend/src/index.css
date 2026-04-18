@@ -1,0 +1,227 @@
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #0d1117;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 250px 1fr 300px;
+  gap: 20px;
+  max-width: 1200px;
+  width: 100%;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: #161b22;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  padding: 1.5rem;
+  border: 1px solid #30363d;
+}
+
+.sidebar-left, .sidebar-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+h1, h2, h3 {
+  margin-top: 0;
+  color: #58a6ff;
+}
+
+h3 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  border-bottom: 1px solid #30363d;
+  padding-bottom: 0.5rem;
+}
+
+/* Stats Header */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.stat-box {
+  background: #21262d;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #30363d;
+}
+
+.stat-val {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #58a6ff;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Wallet Control */
+.wallet-info {
+  margin-bottom: 2rem;
+}
+
+.balance {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2ea043;
+  margin: 10px 0;
+}
+
+.copy-btn {
+  background: transparent;
+  border: 1px solid #8b949e;
+  color: #8b949e;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.disconnect-btn {
+  background: #da3633;
+  width: 100%;
+  margin-top: 15px;
+}
+.disconnect-btn:hover { background: #b62324; }
+
+/* Tip Input Area */
+.input-group {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+input {
+  flex-grow: 1;
+  padding: 0.8em;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+  background: #0d1117;
+  color: white;
+  font-size: 1.1em;
+}
+
+input:focus { outline: none; border-color: #58a6ff; }
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.8em 1.5em;
+  font-size: 1.1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #238636;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+button:hover:not(:disabled) { background-color: #2ea043; }
+button:disabled { background-color: #30363d; color: #8b949e; cursor: not-allowed; }
+
+/* Transaction Log */
+.tx-log {
+  background: #0d1117;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #30363d;
+}
+
+.tx-log.signing { border-left-color: #d29922; }
+.tx-log.pending { border-left-color: #58a6ff; }
+.tx-log.success { border-left-color: #2ea043; }
+.tx-log.error { border-left-color: #f85149; }
+
+.status-icon { margin-right: 10px; }
+
+/* Tables and Lists */
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard-table th, .leaderboard-table td {
+  padding: 8px 0;
+  text-align: left;
+  border-bottom: 1px solid #21262d;
+}
+.leaderboard-table th { color: #8b949e; font-size: 0.85rem; }
+.leaderboard-table td:last-child { text-align: right; font-weight: bold; color: #2ea043; }
+
+.feed-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.feed-item {
+  padding: 10px;
+  border-bottom: 1px solid #21262d;
+  font-size: 0.9rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.feed-item:last-child { border-bottom: none; }
+.feed-item a { color: #58a6ff; text-decoration: none; font-size: 0.8rem; margin-left: 5px; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.network-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background-color: #8b949e;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: black;
+}
