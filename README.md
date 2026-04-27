@@ -1,5 +1,8 @@
 # ☕ Digital Tip Jar DApp
 
+![Home Screen](imgs/home-screen.png)
+![Multi Wallet Selection](imgs/multi-wallet.png)
+
 A highly-responsive, real-time decentralized application built on the Stellar network using Soroban Smart Contracts. This project was developed as a submission for the **Stellar Level 2 Certification**.
 
 ## 🚀 Features
@@ -48,3 +51,9 @@ npm run dev
 ## 🔐 Security & Error Handling
 
 This application features robust frontend error capturing that traps wallet rejections, balance underfunds, and network timeouts natively before they can crash the primary thread, providing users with immediate, color-coded dashboard feedback via the Transaction Status Log.
+
+## 📝 Level 2 Certification Requirements
+
+- **Live Demo Link**: N/A (Running locally)
+- **Deployed Contract Address**: `CA4EUFUJ5X5CW55STIOYHUHZZVIKQF5VPTS2VLEMWXS2XLINEZOEF5WT`
+- **Transaction Hash (Contract Call)**: `68ce2747d50446fac1533936dec7714a7b218825fa7b153de2818bbaf35452de`

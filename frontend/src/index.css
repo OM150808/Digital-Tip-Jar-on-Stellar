@@ -105,10 +105,11 @@ h3 {
 }
 
 .balance {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: bold;
   color: #2ea043;
   margin: 10px 0;
+  word-break: break-word;
 }
 
 .copy-btn {
@@ -135,9 +136,9 @@ h3 {
 /* Tip Input Area */
 .input-group {
   display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 15px;
+  align-items: stretch;
+  gap: 15px;
+  margin-top: 20px;
 }
 
 input {
@@ -206,6 +207,23 @@ button:disabled { border-color: #333; color: #555; cursor: not-allowed; }
   margin: 0;
   max-height: 400px;
   overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Custom Scrollbar for the feed list */
+.feed-list::-webkit-scrollbar {
+  width: 8px;
+}
+.feed-list::-webkit-scrollbar-track {
+  background: #0a0a0a;
+  border-radius: 4px;
+}
+.feed-list::-webkit-scrollbar-thumb {
+  background: #2ea043;
+  border-radius: 4px;
+}
+.feed-list::-webkit-scrollbar-thumb:hover {
+  background: #3fb950;
 }
 
 .feed-item {
