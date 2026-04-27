@@ -36,10 +36,7 @@ cargo build --target wasm32-unknown-unknown --release
 
 Deploy your `.wasm` file to the Stellar Testnet:
 ```bash
-stellar contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/digital_tip_jar.wasm \
-  --source my-wallet \
-  --network testnet
+stellar contract deploy --wasm target/wasm32-unknown-unknown/release/soroban_donation_contract.wasm --source my-wallet --network testnet
 ```
 
 ### 3. Run the DApp

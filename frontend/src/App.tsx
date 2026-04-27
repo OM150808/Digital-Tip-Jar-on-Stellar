@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { StellarWalletsKit, WalletNetwork, FreighterModule, xBullModule } from '@creit.tech/stellar-wallets-kit';
-import { rpc, xdr, Horizon, Contract, TransactionBuilder, BASE_FEE, Networks, nativeToScVal } from '@stellar/stellar-sdk';
+import { rpc, xdr, Horizon, Contract, TransactionBuilder, BASE_FEE, Networks, nativeToScVal, scValToNative } from '@stellar/stellar-sdk';
 import './index.css';
 
-const CONTRACT_ID = "C... (To be deployed)";
+const CONTRACT_ID = "CA4EUFUJ5X5CW55STIOYHUHZZVIKQF5VPTS2VLEMWXS2XLINEZOEF5WT";
 
 export type TxState = 'IDLE' | 'SIGNING' | 'PENDING' | 'SUCCESS' | 'ERROR';
 
@@ -11,10 +11,27 @@ const HORIZON_URL = "https://horizon-testnet.stellar.org";
 const RPC_URL = "https://soroban-testnet.stellar.org:443";
 
 function App() {
-  const [pubKey, setPubKey] = useState("");
+  const [pubKey, setPubKey] = useState(() => localStorage.getItem('pubKey') || "");
+  
+  useEffect(() => {
+    if (pubKey) {
+      localStorage.setItem('pubKey', pubKey);
+    } else {
+      localStorage.removeItem('pubKey');
+    }
+  }, [pubKey]);
   const [balance, setBalance] = useState("0");
   const [amount, setAmount] = useState("");
   
+  const [localTxHistory, setLocalTxHistory] = useState<any[]>(() => {
+    const saved = localStorage.getItem('localTxHistory');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('localTxHistory', JSON.stringify(localTxHistory));
+  }, [localTxHistory]);
+
   const [status, setStatus] = useState<TxState>('IDLE');
   const [errorMessage, setErrorMessage] = useState('');
   const [txDetails, setTxDetails] = useState(''); 
@@ -27,6 +44,17 @@ function App() {
       new FreighterModule(),
       new xBullModule(),
     ],
+    modalTheme: {
+      bgColor: '#0a0a0a',
+      textColor: '#cccccc',
+      solidTextColor: '#ffffff',
+      headerButtonColor: '#2ea043',
+      dividerColor: '#222222',
+      helpBgColor: '#0a0a0a',
+      notAvailableTextColor: '#555555',
+      notAvailableBgColor: '#111111',
+      notAvailableBorderColor: '#222222',
+    }
   }), []);
 
   // 4. Wallet Control Center - Fetch Live Balance
@@ -49,6 +77,20 @@ function App() {
 
   const handleConnect = async () => {
     try {
+      // Inject terminal theme CSS into the wallet modal's shadow DOM
+      setTimeout(() => {
+        const modal = document.querySelector('stellar-wallets-modal');
+        if (modal && modal.shadowRoot) {
+          const style = document.createElement('style');
+          style.innerHTML = `
+            * { font-family: 'Courier New', Courier, monospace !important; }
+            .dialog-modal { border-radius: 4px !important; border: 1px solid #2ea043 !important; }
+            .not-available { border-radius: 4px !important; }
+          `;
+          modal.shadowRoot.appendChild(style);
+        }
+      }, 50);
+
       await kit.openModal({
         onWalletSelected: async (option) => {
           kit.setWallet(option.id);
@@ -113,16 +155,15 @@ function App() {
       const preparedTransaction = await server.prepareTransaction(tx);
 
       // POP UP FREIGHTER WALLET!
-      const { signedXDR } = await kit.signTx({ 
-        xdr: preparedTransaction.toXDR(), 
-        publicKey: pubKey, 
-        network: WalletNetwork.TESTNET 
+      const { signedTxXdr } = await kit.signTransaction(preparedTransaction.toXDR(), { 
+        networkPassphrase: Networks.TESTNET, 
+        address: pubKey 
       });
       
       setStatus('PENDING');
 
       // Reconstruct and send the signed transaction to the Soroban Network
-      const signedTransaction = TransactionBuilder.fromXDR(signedXDR, Networks.TESTNET);
+      const signedTransaction = TransactionBuilder.fromXDR(signedTxXdr, Networks.TESTNET);
       const response = await server.sendTransaction(signedTransaction as any);
       
       // Simple timeout for demo instead of full tx polling implementation
@@ -130,6 +171,15 @@ function App() {
 
       setStatus('SUCCESS');
       setTxDetails(response.hash.slice(0,10) + "...");
+      
+      setLocalTxHistory(prev => [{
+        id: response.hash,
+        address: pubKey,
+        amount: amount,
+        status: 'SUCCESS',
+        timestamp: new Date().toLocaleTimeString()
+      }, ...prev]);
+
       setAmount("");
       fetchBalance(pubKey);  
     } catch (error: any) {
@@ -147,6 +197,15 @@ function App() {
       } else {
          setErrorMessage('An unexpected error occurred during the transaction.');
       }
+      
+      setLocalTxHistory(prev => [{
+        id: Math.random().toString(36).substring(2, 10).toUpperCase(),
+        address: pubKey,
+        amount: amount,
+        status: 'ERROR',
+        errorMessage: errString,
+        timestamp: new Date().toLocaleTimeString()
+      }, ...prev]);
     }
   };
 
@@ -164,17 +223,17 @@ function App() {
           startLedger,
           filters: [{
             type: "contract",
-            contractIds: [CONTRACT_ID],
-            topics: [[xdr.ScVal.scvSymbol("TIP").toXDR("base64")]]
+            contractIds: [CONTRACT_ID]
           }],
           limit: 10
         });
 
         if (eventsRes.events && eventsRes.events.length > 0) {
-          const newTippers = eventsRes.events.map(ev => ({
+          const newTippers = eventsRes.events.map((ev: any) => ({
             id: ev.id,
-            address: ev.topic[1] ? xdr.ScVal.fromXDR(ev.topic[1], "base64").address().toString() : "Unknown",
-            amount: "5", // Simplified; actual XDR decoding of `ev.value` requires SDK conversion
+            address: ev.topic[1] ? scValToNative(ev.topic[1]) as string : "Unknown",
+            amount: ev.value ? (Number(scValToNative(ev.value)) / 10000000).toString() : "0",
+            timestamp: ev.ledgerClosedAt ? new Date(ev.ledgerClosedAt).toLocaleTimeString() : new Date().toLocaleTimeString()
           }));
           
           setRecentTippers(prev => {
@@ -193,19 +252,8 @@ function App() {
 
   // Metrics are now strictly calculated from REAL network events
   const totalTips = recentTippers.reduce((acc, tip) => acc + Number(tip.amount), 0);
-  const myContributions = pubKey 
-    ? recentTippers.filter(t => t.address === pubKey).reduce((acc, tip) => acc + Number(tip.amount), 0)
-    : 0;
-  const communitySize = new Set(recentTippers.map(t => t.address)).size;
 
-  // Compute 3. Leaderboard purely from real events
-  const leaderMap: Record<string, number> = {};
-  recentTippers.forEach(t => {
-    leaderMap[t.address] = (leaderMap[t.address] || 0) + Number(t.amount);
-  });
-  const leaderboard = Object.entries(leaderMap)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5);
+
 
   return (
     <div className="dashboard-layout">
@@ -237,21 +285,14 @@ function App() {
       <div className="main-content">
         
         {/* 1. Stats Header */}
-        <div className="stats-grid">
+        <div className="stats-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
           <div className="stat-box">
-            <div className="stat-label">Total Tips</div>
+            <div className="stat-label">Total Tips (Real-Time)</div>
             <div className="stat-val">{totalTips} XLM</div>
           </div>
           <div className="stat-box">
-            <div className="stat-label">Your Contributions</div>
-            <div className="stat-val">{myContributions} XLM</div>
-          </div>
-          <div className="stat-box">
-            <div className="stat-label">Community Size</div>
-            <div className="stat-val">{communitySize}</div>
-          </div>
-          <div className="stat-box" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
-            <div className="network-badge">Stellar Testnet</div>
+            <div className="stat-label">Tips Received</div>
+            <div className="stat-val">{recentTippers.length}</div>
           </div>
         </div>
 
@@ -292,38 +333,51 @@ function App() {
       {/* RIGHT SIDEBAR: Global Data */}
       <div className="sidebar-right">
         
-        {/* 3. Leaderboard */}
-        <div className="card">
-          <h3>Top Support (Leaderboard)</h3>
-          <table className="leaderboard-table">
-            <thead>
-              <tr>
-                <th>Address</th>
-                <th>Total XLM</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leaderboard.map(([address, totalAmount]) => (
-                <tr key={address}>
-                  <td>{address.slice(0,6)}... {address === pubKey ? "(You)" : ""}</td>
-                  <td>{totalAmount}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
 
-        {/* 2. Live Feed */}
-        <div className="card">
-          <h3>Activity Stream</h3>
-          <ul className="feed-list">
-            {recentTippers.map(t => (
-              <li key={t.id} className="feed-item">
-                <strong>{t.address.slice(0,6)}...</strong> tipped {t.amount} XLM!
-                <a href="#explorer" onClick={(e) => e.preventDefault()}>[View]</a>
-              </li>
-            ))}
-          </ul>
+
+        {/* 2. Live Feed (Activity Log) */}
+        <div className="activity-log-container">
+          <div className="activity-log-title">// RECENT_ACTIVITY_LOG</div>
+          <div className="feed-list" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+            {pubKey ? (
+              localTxHistory.filter(t => t.address === pubKey).map(t => (
+                <div key={t.id} style={{ marginBottom: '25px' }}>
+                  <div className="log-entry" style={{ marginBottom: t.status === 'ERROR' ? '5px' : '0' }}>
+                    <div className="log-left">
+                      <span className="log-hash">#{t.id.slice(0,16).toUpperCase()}...</span>
+                      <span className="log-action">TIP: {t.amount} XLM</span>
+                    </div>
+                    <div className="log-right">
+                      <span className="log-badge" style={{ borderColor: t.status === 'ERROR' ? '#f85149' : '#2ea043', color: t.status === 'ERROR' ? '#f85149' : '#2ea043' }}>
+                        {t.status === 'ERROR' ? 'TX_ERR' : 'TX_OK'}
+                      </span>
+                      <span className="log-time">{t.timestamp}</span>
+                    </div>
+                  </div>
+                  {t.status === 'ERROR' && <div style={{ color: '#f85149', fontSize: '0.8rem', fontFamily: 'Courier New' }}>{t.errorMessage}</div>}
+                </div>
+              ))
+            ) : (
+              recentTippers.map(t => (
+                <div key={t.id} className="log-entry">
+                  <div className="log-left">
+                    <span className="log-hash">#{t.id.slice(0,16).toUpperCase()}...</span>
+                    <span className="log-action">TIP: {t.amount} XLM</span>
+                  </div>
+                  <div className="log-right">
+                    <span className="log-badge">TX_OK</span>
+                    <span className="log-time">{t.timestamp || new Date().toLocaleTimeString()}</span>
+                  </div>
+                </div>
+              ))
+            )}
+            {pubKey && localTxHistory.filter(t => t.address === pubKey).length === 0 && (
+              <div style={{ color: '#666', fontStyle: 'italic', marginTop: '10px' }}>No recent activity for this wallet.</div>
+            )}
+            {!pubKey && recentTippers.length === 0 && (
+              <div style={{ color: '#666', fontStyle: 'italic', marginTop: '10px' }}>Waiting for global activity...</div>
+            )}
+          </div>
         </div>
 
       </div>

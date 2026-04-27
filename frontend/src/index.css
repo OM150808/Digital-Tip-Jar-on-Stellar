@@ -1,11 +1,11 @@
 :root {
-  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Courier New', Courier, monospace;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #0d1117;
+  color: #cccccc;
+  background-color: #050505;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -39,11 +39,10 @@ body {
 }
 
 .card {
-  background: #161b22;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  background: #0a0a0a;
+  border-radius: 4px;
   padding: 1.5rem;
-  border: 1px solid #30363d;
+  border: 1px solid #222;
 }
 
 .sidebar-left, .sidebar-right {
@@ -60,13 +59,15 @@ body {
 
 h1, h2, h3 {
   margin-top: 0;
-  color: #58a6ff;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 h3 {
   margin-bottom: 1rem;
   font-size: 1.2rem;
-  border-bottom: 1px solid #30363d;
+  border-bottom: 1px solid #222;
   padding-bottom: 0.5rem;
 }
 
@@ -78,17 +79,17 @@ h3 {
 }
 
 .stat-box {
-  background: #21262d;
+  background: #0a0a0a;
   padding: 15px;
-  border-radius: 8px;
+  border-radius: 4px;
   text-align: center;
-  border: 1px solid #30363d;
+  border: 1px solid #222;
 }
 
 .stat-val {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #58a6ff;
+  color: #2ea043;
 }
 
 .stat-label {
@@ -119,14 +120,17 @@ h3 {
   border-radius: 4px;
   margin-left: 10px;
   cursor: pointer;
+  text-transform: uppercase;
 }
 
 .disconnect-btn {
-  background: #da3633;
+  background: transparent;
+  border: 1px solid #da3633;
+  color: #da3633;
   width: 100%;
   margin-top: 15px;
 }
-.disconnect-btn:hover { background: #b62324; }
+.disconnect-btn:hover { background: #da3633; color: #000; }
 
 /* Tip Input Area */
 .input-group {
@@ -139,41 +143,44 @@ h3 {
 input {
   flex-grow: 1;
   padding: 0.8em;
-  border-radius: 8px;
-  border: 1px solid #30363d;
-  background: #0d1117;
-  color: white;
+  border-radius: 4px;
+  border: 1px solid #2ea043;
+  background: #000;
+  color: #2ea043;
   font-size: 1.1em;
+  font-family: inherit;
 }
 
-input:focus { outline: none; border-color: #58a6ff; }
+input:focus { outline: none; box-shadow: 0 0 5px #2ea043; }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
+  border-radius: 4px;
+  border: 1px solid #2ea043;
   padding: 0.8em 1.5em;
   font-size: 1.1em;
-  font-weight: 500;
+  font-weight: bold;
   font-family: inherit;
-  background-color: #238636;
-  color: #ffffff;
+  background-color: #000;
+  color: #2ea043;
   cursor: pointer;
   transition: all 0.2s;
+  text-transform: uppercase;
 }
 
-button:hover:not(:disabled) { background-color: #2ea043; }
-button:disabled { background-color: #30363d; color: #8b949e; cursor: not-allowed; }
+button:hover:not(:disabled) { background-color: #2ea043; color: #000; }
+button:disabled { border-color: #333; color: #555; cursor: not-allowed; }
 
 /* Transaction Log */
 .tx-log {
-  background: #0d1117;
+  background: #0a0a0a;
   padding: 15px;
-  border-radius: 8px;
-  border-left: 4px solid #30363d;
+  border-radius: 4px;
+  border: 1px solid #222;
+  border-left: 4px solid #333;
 }
 
 .tx-log.signing { border-left-color: #d29922; }
-.tx-log.pending { border-left-color: #58a6ff; }
+.tx-log.pending { border-left-color: #2ea043; }
 .tx-log.success { border-left-color: #2ea043; }
 .tx-log.error { border-left-color: #f85149; }
 
@@ -188,9 +195,9 @@ button:disabled { background-color: #30363d; color: #8b949e; cursor: not-allowed
 .leaderboard-table th, .leaderboard-table td {
   padding: 8px 0;
   text-align: left;
-  border-bottom: 1px solid #21262d;
+  border-bottom: 1px solid #222;
 }
-.leaderboard-table th { color: #8b949e; font-size: 0.85rem; }
+.leaderboard-table th { color: #8b949e; font-size: 0.85rem; text-transform: uppercase; }
 .leaderboard-table td:last-child { text-align: right; font-weight: bold; color: #2ea043; }
 
 .feed-list {
@@ -224,4 +231,66 @@ button:disabled { background-color: #30363d; color: #8b949e; cursor: not-allowed
   font-size: 0.75rem;
   font-weight: bold;
   color: black;
+}
+
+/* Terminal Activity Log */
+.activity-log-container {
+  background-color: #0a0a0a;
+  border: 1px solid #222;
+  border-radius: 4px;
+  padding: 20px;
+  font-family: 'Courier New', Courier, monospace;
+  color: #ccc;
+  margin-top: 20px;
+}
+
+.activity-log-title {
+  color: #fff;
+  font-weight: bold;
+  border-bottom: 1px solid #222;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.log-entry {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 25px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.log-left {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.log-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.log-hash {
+  color: #8b949e;
+}
+
+.log-action {
+  color: #e6e6e6;
+  font-weight: bold;
+}
+
+.log-badge {
+  border: 1px solid #2ea043;
+  color: #2ea043;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+}
+
+.log-time {
+  color: #e6e6e6;
 }
