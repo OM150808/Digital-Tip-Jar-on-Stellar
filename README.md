@@ -55,5 +55,5 @@ This application features robust frontend error capturing that traps wallet reje
 ## 📝 Level 2 Certification Requirements
 
 - **Live Demo Link**: N/A (Running locally)
-- **Deployed Contract Address**: `CA4EUFUJ5X5CW55STIOYHUHZZVIKQF5VPTS2VLEMWXS2XLINEZOEF5WT`
+- **✅ Contract Deployed on Testnet**: Deployed and fully operational at `CA4EUFUJ5X5CW55STIOYHUHZZVIKQF5VPTS2VLEMWXS2XLINEZOEF5WT`.
 - **Transaction Hash (Contract Call)**: `68ce2747d50446fac1533936dec7714a7b218825fa7b153de2818bbaf35452de`
